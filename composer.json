@@ -1,0 +1,26 @@
+{
+    "name": "mammoth-php/file",
+    "description": "Uma classe autônoma de upload de vários arquivos. Fazendo com que o upload seja mais fácil e dinâmico",
+    "keywords": ["file", "files", "upload", "uploader", "uploads", "upload-file"],
+    "authors": [
+      {
+        "name": "Maurício Porfírio",
+        "email": "mauriciosporfirio@gmail.com",
+        "role": "Creator/Developer"
+      },
+      {
+        "name": "Dhonata Freitas",
+        "email": "dhonatafreitas@gmail.com",
+        "role": "Creator/Developer"
+      }
+    ],
+    "require": {
+        "php": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+           "Mammoth\\": "src/" 
+        }
+    }
+}
+ 

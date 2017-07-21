@@ -95,12 +95,12 @@ class File {
     
     
     private function mkDir($move) {
-        if(!file_exists($this->dir . $move)){
-            mkdir($this->dir . $move);
+        if(!file_exists($this->path . $move)){
+            mkdir($this->path . $move);
         }
         
-        if(!file_exists($this->dir . $move . date('Y-m-d'))){
-            mkdir($this->dir . $move . date('Y-m-d'));
+        if(!file_exists($this->path . $move . date('Y-m-d'))){
+            mkdir($this->path . $move . date('Y-m-d'));
         }
     }
 

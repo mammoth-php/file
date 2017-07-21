@@ -20,7 +20,7 @@ $ composer require mammoth-php/file
     // Instanciando e definindo onde irá ficar a pasta de upload dos arquivos
     $file = new Mammoth\Upload\File(__DIR__ . '/public');
     
-    $file->upload($_FILES['arquivo']['name'], [
+    $file->upload($_FILES['arquivo'], [
           'move' => '/uploads/',                     // diretório que irá conter os uploads separados por datas.
           'size' => 300000,                          // tamanho do arquivo em MB.
           'type' => ['jpg', 'png', 'gif', 'ico']     // extensões permitidas(validação).

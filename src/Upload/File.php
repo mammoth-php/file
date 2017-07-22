@@ -56,7 +56,11 @@ class File {
     
     
     public function __construct($path){
-        $this->path = $path;
+        if(file_exists($path) && is_dir($path)){
+            $this->path = $path;
+        } else {
+            $this->erros['source'] = "O diretório (raiz) que irá conter cópia(s) do(s) arquivo(s) não existe.";
+        }
     }
     
     
@@ -71,11 +75,14 @@ class File {
     
     
     public function upload($file, array $options){
-        $path_info = pathinfo($file['name']);
+        $path_info  = pathinfo($file['name']);
+        
+        $fileRename = $this->fileRename($path_info['extension']);
+        $moveFile   = $this->mkDir($options['move']);
         
         if(in_array(strtolower($path_info['extension']), $options['type'])){
             if($file['size'] <= $options['size']){
-                $this->moveFile($file, $this->mkDir($options['move']));
+                //$this->moveFile($file, $fileRename, $moveFile);
             } else {
                 $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. Tamanho máximo permitido é " . $options['size'] / (1000 * 1000) . "MB";
             }
@@ -91,14 +98,14 @@ class File {
      * -------------------------------------------------------------------------
      *  
      * @param type $file
-     * @param type $path
+     * @param type $destination
      * @return boolean
      */
     
     
-    private function moveFile($file, $path){
-        if(move_uploaded_file($file['tmp_name'], $path . $file['name'])){
-            return $file['name'];
+    private function moveFile($file, $rename, $destination){
+        if(move_uploaded_file($file['tmp_name'], $destination . $rename)){
+            return $rename;
         } else {
             return FALSE;
         }
@@ -110,24 +117,26 @@ class File {
      * Cria um diretório dentro da pasta definida no __contruct
      * -------------------------------------------------------------------------
      * 
-     * @param type $move
+     * @param type $dir
      */
     
     
-    private function mkDir($move) {
-        if(!file_exists($this->path . $move)){
-            mkdir($this->path . $move, 0777);
+    private function mkDir($dir) {
+        if(!file_exists($this->path . $dir)){
+            //mkdir($this->path . $dir);
+            echo $this->path . $dir;
         }
         
-        if(!file_exists($this->path . $move . date('Y-m-d'))){
-            mkdir($this->path . $move . date('Y-m-d'), 0777);
+        if(!file_exists($this->path . $dir . date('Y-m-d'))){
+            //mkdir($this->path . $dir . date('Y-m-d'));
+            echo $this->path . $dir . date('Y-m-d');
         }
     }
     
     
     /**
      * -------------------------------------------------------------------------
-     * Cria um novo nome para o arquivo que será upado.
+     * Renomeia o nome do arquivo que será upado, com uma criptografia.
      * -------------------------------------------------------------------------
      * 
      * @param type $extension
@@ -135,8 +144,8 @@ class File {
      */
     
     
-    private function fileEncrypted($extension) {
-        return md5(time()) . $extension;
+    private function fileRename($extension) {
+        return md5(time()) . '.' . $extension;
     }
 
 

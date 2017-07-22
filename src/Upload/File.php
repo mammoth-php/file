@@ -118,7 +118,7 @@ class File {
     
     
     private function fileRename($extension) {
-        return md5(time()) . '.' . $extension;
+        return  '@' . date('H%i%s') . '@' . md5(time()) . '.' . $extension;
     }
 
 

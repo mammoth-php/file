@@ -5,7 +5,7 @@
     date_default_timezone_set('America/Fortaleza');
     
     // Instanciando e definindo onde irá ficar a pasta de upload dos arquivos
-    $file = new Mammoth\Upload\File(__DIR__ . '/public_html');
+    $file = new Mammoth\Upload\File(__DIR__ . '/public');
     
     //var_dump($_FILES);
     

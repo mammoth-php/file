@@ -22,7 +22,7 @@ $ composer require mammoth-php/file
     
     $file->upload($_FILES['arquivo'], [
           'move' => '/uploads/',                     // diretório que irá conter os uploads separados por datas.
-          'size' => 300000,                          // tamanho do arquivo em MB.
+          'size' => 3000000,                         // tamanho do arquivo em MB. Ex: 3MB
           'type' => ['jpg', 'png', 'gif', 'ico']     // extensões permitidas(validação).
     ]);
     

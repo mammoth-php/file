@@ -15,30 +15,6 @@ class File {
     
     
     /**
-     * @var type | image extensions
-     */
-    
-    
-    private $image = ['png', 'jpeg', 'jpg', 'gif', 'ico', 'bmp', 'tif', 'tiff', 'pcx', 'tga', 'raw'];
-    
-    
-    /**
-     * @var type | video extensions
-     */
-    
-    
-    private $video = ['avi', 'mp4', 'vob', 'mpeg', 'mkv' ,'rmvb', '3gp', 'wmv', 'mpg', 'mov', 'flv', 'swf'];
-    
-    
-    /**
-     * @var type | music extensions
-     */
-    
-    
-    private $music = ['mp3', 'wma', 'ape', 'flac', 'acc', 'ac3', 'dts', 'mmf', 'amr', 'm4a', 'm4r', 'ogg', 'wav', 'wavpack', 'mp2'];
-    
-    
-    /**
      * @var type | erros 
      */
     
@@ -56,11 +32,7 @@ class File {
     
     
     public function __construct($path){
-        if(file_exists($path) && is_dir($path)){
-            $this->path = $path;
-        } else {
-            $this->erros['source'] = "O diretório (raiz) que irá conter cópia(s) do(s) arquivo(s) não existe.";
-        }
+        $this->path = $path;
     }
     
     
@@ -75,19 +47,22 @@ class File {
     
     
     public function upload($file, array $options){
-        $path_info  = pathinfo($file['name']);
+        $pathInfo  = pathinfo($file['name']);
         
-        $fileRename = $this->fileRename($path_info['extension']);
-        $moveFile   = $this->mkDir($options['move']);
-        
-        if(in_array(strtolower($path_info['extension']), $options['type'])){
+        if(in_array(strtolower($pathInfo['extension']), $options['type'])){
             if($file['size'] <= $options['size']){
-                //$this->moveFile($file, $fileRename, $moveFile);
+                
+                $this->mkDir($options['move']); // Cria um diretório 
+                
+                $fileRename = $this->fileRename($pathInfo['extension']); // Gerando um nome criptografado para o arquivo
+                $pathFile   = $this->path . $options['move'] . date('d-m-Y'); // Definindo o caminho criado anteriormente
+                
+                $this->moveFile($file,  $pathFile . '/' . $fileRename); // Copiando arquivo para o destino
             } else {
-                $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. Tamanho máximo permitido é " . $options['size'] / (1000 * 1000) . "MB";
+                $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. (Tamanho: " . round($options['size'] / (1000 * 1000), 2) . "MB)";
             }
         } else {
-            $this->erros['type'] = "O formato do arquivo não é suportado. Os formatos permitidos são: " . implode(', ', $options['type']);
+            $this->erros['type'] = "O formato do arquivo não é suportado. (Formatos suportados: " . implode(', ', $options['type']) . ")";
         }
     }
     
@@ -103,9 +78,9 @@ class File {
      */
     
     
-    private function moveFile($file, $rename, $destination){
-        if(move_uploaded_file($file['tmp_name'], $destination . $rename)){
-            return $rename;
+    private function moveFile($file, $destination){
+        if(move_uploaded_file($file['tmp_name'], $destination)){
+            return $destination;
         } else {
             return FALSE;
         }
@@ -123,13 +98,11 @@ class File {
     
     private function mkDir($dir) {
         if(!file_exists($this->path . $dir)){
-            //mkdir($this->path . $dir);
-            echo $this->path . $dir;
+            mkdir($this->path . $dir, 0777);
         }
         
-        if(!file_exists($this->path . $dir . date('Y-m-d'))){
-            //mkdir($this->path . $dir . date('Y-m-d'));
-            echo $this->path . $dir . date('Y-m-d');
+        if(!file_exists($this->path . $dir . date('d-m-Y'))){
+            mkdir($this->path . $dir . date('d-m-Y'), 0777);
         }
     }
     

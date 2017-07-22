@@ -47,22 +47,29 @@ class File {
     
     
     public function upload($file, array $options){
-        $pathInfo  = pathinfo($file['name']);
         
-        if(in_array(strtolower($pathInfo['extension']), $options['type'])){
-            if($file['size'] <= $options['size']){
+        if(!empty($file['name'])) {
+            $pathInfo  = pathinfo($file['name']);
+            
+            if(in_array(strtolower($pathInfo['extension']), $options['type'])){
                 
-                $this->mkDir($options['move']); // Cria um diretório 
+                if($file['size'] <= $options['size']){
+                    $this->mkDir($options['move']); // Cria o diretório definido 
+
+                    $fileRename = $this->fileRename($pathInfo['extension']); // Gerando um nome criptografado para o arquivo
+                    $pathFile   = $this->path . $options['move'] . date('d-m-Y'); // Definindo o caminho criado anteriormente
+
+                    $this->moveFile($file,  $pathFile . '/' . $fileRename); // Copiando arquivo para o destino
+                } else {
+                    $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. (Tamanho: " . round($options['size'] / (1000 * 1000), 2) . "MB)";
+                }
                 
-                $fileRename = $this->fileRename($pathInfo['extension']); // Gerando um nome criptografado para o arquivo
-                $pathFile   = $this->path . $options['move'] . date('d-m-Y'); // Definindo o caminho criado anteriormente
-                
-                $this->moveFile($file,  $pathFile . '/' . $fileRename); // Copiando arquivo para o destino
             } else {
-                $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. (Tamanho: " . round($options['size'] / (1000 * 1000), 2) . "MB)";
+                $this->erros['type'] = "O formato do arquivo não é suportado. (Formatos suportados: " . implode(', ', $options['type']) . ")";
             }
+            
         } else {
-            $this->erros['type'] = "O formato do arquivo não é suportado. (Formatos suportados: " . implode(', ', $options['type']) . ")";
+            $this->erros['file'] = "O campo (arquivo/file) é obrigatório. ";
         }
     }
     

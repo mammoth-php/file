@@ -75,19 +75,39 @@ class File {
         
         if(in_array(strtolower($path_info['extension']), $options['type'])){
             if($file['size'] <= $options['size']){
-                $this->mkDir($options['move']);
+                $this->moveFile($file, $this->mkDir($options['move']));
             } else {
-                $this->erros[] = "O arquivo excedeu o tamanho máximo permitido. Tamanho máximo permitido é " . $options['size'];
+                $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. Tamanho máximo permitido é " . $options['size'] / (1000 * 1000) . "MB";
             }
         } else {
-            $this->erros[] = "O formato do arquivo não é suportado.";
+            $this->erros['type'] = "O formato do arquivo não é suportado. Os formatos permitidos são: " . implode(', ', $options['type']);
         }
     }
     
     
     /**
      * -------------------------------------------------------------------------
-     * Cria um diretório dentro da pasta definida no @__contruct
+     * Movendo arquivo para diretório criado na aplicação
+     * -------------------------------------------------------------------------
+     *  
+     * @param type $file
+     * @param type $path
+     * @return boolean
+     */
+    
+    
+    private function moveFile($file, $path){
+        if(move_uploaded_file($file['tmp_name'], $path . $file['name'])){
+            return $file['name'];
+        } else {
+            return FALSE;
+        }
+    }
+
+
+    /**
+     * -------------------------------------------------------------------------
+     * Cria um diretório dentro da pasta definida no __contruct
      * -------------------------------------------------------------------------
      * 
      * @param type $move
@@ -96,12 +116,27 @@ class File {
     
     private function mkDir($move) {
         if(!file_exists($this->path . $move)){
-            mkdir($this->path . $move);
+            mkdir($this->path . $move, 0777);
         }
         
         if(!file_exists($this->path . $move . date('Y-m-d'))){
-            mkdir($this->path . $move . date('Y-m-d'));
+            mkdir($this->path . $move . date('Y-m-d'), 0777);
         }
+    }
+    
+    
+    /**
+     * -------------------------------------------------------------------------
+     * Cria um novo nome para o arquivo que será upado.
+     * -------------------------------------------------------------------------
+     * 
+     * @param type $extension
+     * @return type
+     */
+    
+    
+    private function fileEncrypted($extension) {
+        return md5(time()) . $extension;
     }
 
 

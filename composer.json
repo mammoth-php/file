@@ -1,7 +1,7 @@
 {
     "name": "mammoth-php/file",
-    "description": "Uma classe autônoma de upload de vários arquivos. Fazendo com que o upload seja mais fácil e dinâmico",
-    "keywords": ["file", "files", "upload", "uploader", "uploads", "upload-file"],
+    "description": "Uma classe de upload de arquivos baseada em PHP que permite upar arquivos de várias extensões com facilidade e simplicidade.",
+    "keywords": ["php-7", "file",  "upload", "upload-file"],
     "authors": [
       {
         "name": "Maurício Porfírio",

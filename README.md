@@ -18,12 +18,12 @@ $ composer require mammoth-php/file
     require 'vendor/autoload.php';
     
     // Instanciando e definindo onde irá ficar a pasta de upload dos arquivos
-    $file = new Mammoth\Upload\File(__DIR__ . '/public');
+    $file = new Mammoth\Upload\File(__DIR__ . '/public_html');
     
     $file->upload($_FILES['arquivo'], [
-          'move' => '/uploaded/',                    // diretório que irá conter os uploads separados por datas.
-          'size' => 3000000,                         // tamanho do arquivo em MB. Ex: 3MB
-          'type' => ['jpg', 'png', 'gif', 'ico']     // extensões permitidas(validação).
+        'move' => '/uploaded/',                 // diretório que irá conter os uploads separados por datas.
+        'size' => 2000000,                      // tamanho do arquivo em MB. Ex: 2MB
+        'type' => ['jpg', 'png']                // extensões permitidas(validação).
     ]);
     
     if(!$file->getErros()){

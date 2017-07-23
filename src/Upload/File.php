@@ -125,7 +125,7 @@ class File {
     
     
     private function fileRename($extension) {
-        return  '@' . date('H%i%s') . '@' . md5(time()) . '.' . $extension;
+        return substr(md5(time()), 0, 12) . '@' . strtotime('now') . '.' . $extension;
     }
 
 

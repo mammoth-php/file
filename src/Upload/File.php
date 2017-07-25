@@ -116,7 +116,7 @@ class File {
     
     /**
      * -------------------------------------------------------------------------
-     * Renomeia o nome do arquivo que será upado, com uma criptografia.
+     * Renomeia o nome do arquivo que será upado com uma criptografia.
      * -------------------------------------------------------------------------
      * 
      * @param type $extension

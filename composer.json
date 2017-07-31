@@ -1,6 +1,6 @@
 {
     "name": "mammoth-php/file",
-    "description": "Uma classe de upload de arquivos baseada em PHP que permite upar arquivos de várias extensões com facilidade e simplicidade.",
+    "description": "Uma classe de upload de arquivos baseada em PHP-7 que permite upar arquivos de várias extensões com facilidade e simplicidade.",
     "keywords": ["php-7", "file",  "upload", "upload-file"],
     "license": "MIT",
     "authors": [

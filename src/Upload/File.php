@@ -46,24 +46,22 @@ class File {
      */
     
     
-    public function upload($file, array $options){
+    public function upload($file, array $options) {
         
         if(!empty($file['name'])) {
-            $pathInfo  = pathinfo($file['name']);
+            $file_info  = pathinfo($file['name']);
             
-            if(in_array(strtolower($pathInfo['extension']), $options['type'])){
-                
+            if(in_array(strtolower($file_info['extension']), $options['type'])){
                 if($file['size'] <= $options['size']){
-                    $this->mkDir($options['move']); // Cria o diretório definido 
+                    $this->create($options['move']); 
 
-                    $fileRename = $this->fileRename($pathInfo['extension']); // Gerando um nome criptografado para o arquivo
-                    $pathFile   = $this->path . $options['move'] . date('d-m-Y'); // Definindo o caminho criado anteriormente
+                    $new_name  = $this->encrypt($file_info['extension']); 
+                    $path_file = $this->path . $options['move'] . date('Y-m-d'); 
 
-                    $this->moveFile($file,  $pathFile . '/' . $fileRename); // Copiando arquivo para o destino
+                    $this->move($file,  $path_file . '/' . $new_name); 
                 } else {
                     $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. (Tamanho: " . round($options['size'] / (1000 * 1000), 2) . "MB)";
                 }
-                
             } else {
                 $this->erros['type'] = "O formato do arquivo não é suportado. (Formatos suportados: " . implode(', ', $options['type']) . ")";
             }
@@ -85,7 +83,7 @@ class File {
      */
     
     
-    private function moveFile($file, $destination){
+    private function move($file, $destination){
         if(move_uploaded_file($file['tmp_name'], $destination)){
             return $destination;
         } else {
@@ -103,13 +101,13 @@ class File {
      */
     
     
-    private function mkDir($dir) {
-        if(!file_exists($this->path . $dir)){
-            mkdir($this->path . $dir, 0777);
+    private function create($dir) {
+        if(!file_exists($this->path . $dir)) {
+            mkdir($this->path . $dir);
         }
         
-        if(!file_exists($this->path . $dir . date('d-m-Y'))){
-            mkdir($this->path . $dir . date('d-m-Y'), 0777);
+        if(!file_exists($this->path . $dir . date('Y-m-d'))) {
+            mkdir($this->path . $dir . date('Y-m-d'));
         }
     }
     
@@ -124,8 +122,8 @@ class File {
      */
     
     
-    private function fileRename($extension) {
-        return substr(md5(time()), 0, 12) . '@' . strtotime('now') . '.' . $extension;
+    private function encrypt($extension) {
+        return md5(time()) . '@' . strtotime('now') . '.' . $extension;
     }
 
 

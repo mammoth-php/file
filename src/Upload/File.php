@@ -60,10 +60,10 @@ class File {
 
                     $this->move($file,  $path_file . '/' . $new_name); 
                 } else {
-                    $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. (Tamanho: " . round($options['size'] / (1000 * 1000), 2) . "MB)";
+                    
                 }
             } else {
-                $this->erros['type'] = "O formato do arquivo não é suportado. (Formatos suportados: " . implode(', ', $options['type']) . ")";
+                
             }
             
         } else {
@@ -78,16 +78,40 @@ class File {
      * -------------------------------------------------------------------------
      *  
      * @param type $file
-     * @param type $destination
+     * @param type $option
      * @return boolean
      */
     
     
-    private function move($file, $destination){
+    private function move($file, array $option){
+        if(!file_exists($this->path . $option['move'])) {
+            mkdir($this->path . $option['move']);
+        }
+        
+        if(!file_exists($this->path . $option['move'] . date('Y-m-d'))) {
+            mkdir($this->path . $option['move'] . date('Y-m-d'));
+        }
+        
         if(move_uploaded_file($file['tmp_name'], $destination)){
-            return $destination;
+            return TRUE;
         } else {
             return FALSE;
+        }
+    }
+    
+    private function size($file, array $option){
+        if($file['size'] <= $option['size']){
+            $this->move($file, $option['move']);
+        } else {
+            $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. (Tamanho: " . round($option['size'] / (1000 * 1000), 2) . "MB)";
+        }
+    }
+    
+    private function type($file, array $option){
+        if(in_array(strtolower($file['extensions']), $option)) {
+            $this->size($file, $option);
+        } else {
+            $this->erros['type'] = "O formato do arquivo não é suportado. (Formatos suportados: " . implode(', ', $option['type']) . ")";
         }
     }
 

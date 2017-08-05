@@ -5,163 +5,82 @@ namespace Mammoth\Upload;
 
 class File {
     
+    private $path;
     
-    /**
-     * @var type | $path 
-     */
+    private $size;
     
+    private $type;
     
-    private $path  = NULL;
+    private $message;
     
+    private $erro;
+
+    private $folder = '/';
     
-    /**
-     * @var type | erros 
-     */
-    
-    
-    private $erros = FALSE;
-    
-    
-    /**
-     * -------------------------------------------------------------------------
-     * Diretório onde ficará os arquivos de upload.
-     * -------------------------------------------------------------------------
-     *  
-     * @param type $path
-     */
-    
-    
-    public function __construct($path){
+    private $newName;
+
+    public function __construct($path) {
         $this->path = $path;
     }
     
-    
-    /**
-     * -------------------------------------------------------------------------
-     * Realiza o Upload de(os) arquivo(s).
-     * -------------------------------------------------------------------------
-     * 
-     * @param type $file
-     * @param array $options
-     */
-    
-    
-    public function upload($file, array $options) {
-        
-        if(!empty($file['name'])) {
-            $file_info  = pathinfo($file['name']);
-            
-            if(in_array(strtolower($file_info['extension']), $options['type'])){
-                if($file['size'] <= $options['size']){
-                    $this->create($options['move']); 
+    public function setFolder(string $folder) {
+        $this->folder = $folder;
+        var_dump($folder);
+        if(!file_exists($this->path . $this->folder)):
+            mkdir($this->path . $this->folder);
+        endif;
+    }
 
-                    $new_name  = $this->encrypt($file_info['extension']); 
-                    $path_file = $this->path . $options['move'] . date('Y-m-d'); 
-
-                    $this->move($file,  $path_file . '/' . $new_name); 
-                } else {
-                    
-                }
-            } else {
-                
-            }
-            
-        } else {
-            $this->erros['file'] = "O campo (arquivo/file) é obrigatório. ";
-        }
+    public function addRules(array $rules, array $message) {
+        $this->size    = intval($rules['size'] * 1024); 
+        $this->type    = explode('|', $rules['type']);
+        $this->message = $message;
     }
     
-    
-    /**
-     * -------------------------------------------------------------------------
-     * Movendo arquivo para diretório criado na aplicação
-     * -------------------------------------------------------------------------
-     *  
-     * @param type $file
-     * @param type $option
-     * @return boolean
-     */
-    
-    
-    private function move($file, array $option){
-        if(!file_exists($this->path . $option['move'])) {
-            mkdir($this->path . $option['move']);
-        }
-        
-        if(!file_exists($this->path . $option['move'] . date('Y-m-d'))) {
-            mkdir($this->path . $option['move'] . date('Y-m-d'));
-        }
-        
-        if(move_uploaded_file($file['tmp_name'], $destination)){
-            return TRUE;
-        } else {
+    public function send($file, bool $newname = FALSE) : bool{
+        $this->erro    = NULL;
+        $pathFile      = pathinfo($file['name']);
+        $this->newName = $pathFile['filename']; 
+        if(in_array($pathFile['extension'], $this->type)):
+            if($this->size >= $file['size']):
+                $this->verifyFolder();
+                $this->createNewName($newname);
+                $this->newName .= ".{$pathFile['extension']}";
+                return $this->upload($file);
+            else:
+                $this->erro['size'] = (isset($this->message['size'])) ? $this->message['size'] : "O arquivo excedeu o tamanho permitido de 2MB.";
+                return FALSE;
+            endif;
+        else:
+            $this->erro['type'] = (isset($this->message['type'])) ? $this->message['type'] : "O formato do arquivo não permitido.";
             return FALSE;
-        }
-    }
-    
-    private function size($file, array $option){
-        if($file['size'] <= $option['size']){
-            $this->move($file, $option['move']);
-        } else {
-            $this->erros['size'] = "O arquivo excedeu o tamanho máximo permitido. (Tamanho: " . round($option['size'] / (1000 * 1000), 2) . "MB)";
-        }
-    }
-    
-    private function type($file, array $option){
-        if(in_array(strtolower($file['extensions']), $option)) {
-            $this->size($file, $option);
-        } else {
-            $this->erros['type'] = "O formato do arquivo não é suportado. (Formatos suportados: " . implode(', ', $option['type']) . ")";
-        }
-    }
-
-
-    /**
-     * -------------------------------------------------------------------------
-     * Cria um diretório dentro da pasta definida no __contruct
-     * -------------------------------------------------------------------------
-     * 
-     * @param type $dir
-     */
-    
-    
-    private function create($dir) {
-        if(!file_exists($this->path . $dir)) {
-            mkdir($this->path . $dir);
-        }
+        endif;
         
-        if(!file_exists($this->path . $dir . date('Y-m-d'))) {
-            mkdir($this->path . $dir . date('Y-m-d'));
-        }
     }
     
-    
-    /**
-     * -------------------------------------------------------------------------
-     * Renomeia o nome do arquivo que será upado com uma criptografia.
-     * -------------------------------------------------------------------------
-     * 
-     * @param type $extension
-     * @return type
-     */
-    
-    
-    private function encrypt($extension) {
-        return md5(time()) . '@' . strtotime('now') . '.' . $extension;
+    private function verifyFolder() {
+        if(!file_exists($this->path . $this->folder . date("Y-m-d"))):
+            mkdir($this->path . $this->folder . date("Y-m-d"));
+        endif;
     }
-
-
-    /**
-     * -------------------------------------------------------------------------
-     * Retorna todos os erros possíveis.
-     * -------------------------------------------------------------------------
-     * 
-     * @return type
-     */
     
+    private function createNewName(bool $newName){
+        if($newName):
+            $this->newName = md5(time()) . '@' . strtotime('now');
+        endif;
+    }
     
-    public function getErros() {
-        return $this->erros;
+    private function upload($file) : bool{
+        if(move_uploaded_file($file['tmp_name'], $this->path . $this->folder . date("Y-m-d") . '/' . $this->newName)):
+            return TRUE;
+        else:
+            $this->erro['upload'] = (isset($this->message['type'])) ? $this->message['type'] : "Houve um erro com o upload do arquivo.";
+            return FALSE;
+        endif;
+    }
+    
+    public function getErros(){
+        return $this->erro;
     }
     
 }
